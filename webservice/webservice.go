@@ -1,6 +1,7 @@
 package webservice
 
 import (
+	auth "../auth"
 	"fmt"
 	"net/http"
 	"strings"
@@ -14,6 +15,7 @@ import (
 
 var (
 	status_ok string = ""
+	version   string = "1.0.0"
 )
 
 type Login struct {
@@ -210,7 +212,7 @@ func handleGetLinkageToken(c *gin.Context) {
 	c.JSON(http.StatusOK, output)
 }
 
-// handleGetLinkageToken
+// handleInquireIdData
 // input: {"token":"xxxxxxxxxx", "pid":"pid for inquiry" }
 func handleInquireIdData(c *gin.Context) {
 	// Check IP Address
@@ -320,11 +322,34 @@ func handleInquireHomeData(c *gin.Context) {
 	c.JSON(http.StatusOK, output)
 }
 
+// handleVersion
+func handleVersion(c *gin.Context) {
+	bearer := c.Request.Header.Get("Authorization")
+	token := strings.TrimPrefix(bearer, "Bearer ")
+	
+	if err := auth.Protect(token); err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	output := gin.H{
+		"status": status_ok,
+		"version": version,
+	}
+	c.JSON(http.StatusOK, output)
+}
+
+
+
 func Run() {
 	// gin.SetMode(gin.ReleaseMode)
 
 	// Default With the Logger and Recovery middleware already attached
 	var r *gin.Engine = gin.Default()
+
+	r.GET("/Auth", auth.HandleAccessToken)
+
+	r.GET("/Version", handleVersion)
 
 	r.GET("/ReadCard", handleReadCard)
 
