@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
 
 	ami "github.com/churikawit/goami"
 	scapi "github.com/churikawit/goscapi"
@@ -346,6 +347,12 @@ func Run() {
 
 	// Default With the Logger and Recovery middleware already attached
 	var r *gin.Engine = gin.Default()
+
+	/* config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"http://google.com"}
+	config.AllowMethods = []string{"GET", "POST"}
+	r.Use(cors.New(config)) */
+	r.Use(cors.Default())
 
 	r.GET("/Auth", auth.HandleAccessToken)
 
